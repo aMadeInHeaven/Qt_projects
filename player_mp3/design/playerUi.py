@@ -12,12 +12,13 @@ class Ui_MainWindow(object):
         self.SongName_lbl = QtWidgets.QLabel(parent=self.centralwidget)
         self.SongName_lbl.setGeometry(QtCore.QRect(0, 10, 320, 50))
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(12)
         self.SongName_lbl.setFont(font)
         self.SongName_lbl.setStyleSheet("background-color: rgb(61, 61, 61);\n"
                                         "color: rgb(28, 255, 25);")
         self.SongName_lbl.setText("")
         self.SongName_lbl.setObjectName("SongName_lbl")
+        self.SongName_lbl.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
         self.SongProgress_sldr = QtWidgets.QSlider(parent=self.centralwidget)
         self.SongProgress_sldr.setGeometry(QtCore.QRect(0, 75, 320, 30))
