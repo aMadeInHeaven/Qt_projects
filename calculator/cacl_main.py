@@ -36,7 +36,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.percent_button.clicked.connect(self.get_percent)  # Done
         self.bracket_button.clicked.connect(self.brackets)
         self.comma_button.clicked.connect(self.comma)  # Done
-        self.negation_button.clicked.connect(self.negation)
+        self.negation_button.clicked.connect(self.negation) # Done
 
         self.clear_button.clicked.connect(self.clear)  # Done
         self.equal_button.clicked.connect(self.result)  # Done
@@ -158,7 +158,9 @@ class Main_window(QMainWindow, Ui_MainWindow):
 
     def negation(self):
 
-        pass
+        if self.real_result[-1] not in self.math_sighns:
+            self.real_result[-1] = str(-int(self.real_result[-1]))
+            self.result_label.setText("".join(self.real_result))
 
 
 if __name__ == "__main__":
