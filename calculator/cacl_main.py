@@ -13,8 +13,9 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.real_result = ["0"]
 
         self.is_equal = False
-        self.math_sighns = ["+", "-", "/", "*"]
+        self.math_sighns = ["+", "-", "/", "*", "("]
 
+        self.brackets_stack = []
 
     def setup1(self):
         self.button_0.clicked.connect(lambda: self.write_number("0"))  # Done
@@ -36,7 +37,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.percent_button.clicked.connect(self.get_percent)  # Done
         self.bracket_button.clicked.connect(self.brackets)
         self.comma_button.clicked.connect(self.comma)  # Done
-        self.negation_button.clicked.connect(self.negation) # Done
+        self.negation_button.clicked.connect(self.negation)  # Done
 
         self.clear_button.clicked.connect(self.clear)  # Done
         self.equal_button.clicked.connect(self.result)  # Done
@@ -104,6 +105,21 @@ class Main_window(QMainWindow, Ui_MainWindow):
             self.result_label.setText("".join(self.real_result))
 
     def result(self):
+
+        delta_stack = []
+        for sign in self.brackets_stack:
+            if delta_stack != []:
+                if delta_stack[-1] == "(" and sign == ")":
+                    delta_stack.pop()
+                else:
+                    delta_stack.append(sign)
+            else:
+                delta_stack.append(sign)
+
+        if delta_stack != []:
+            count_open_brackets = delta_stack.count("(")
+            self.real_result += [")"] * count_open_brackets
+
         try:
             res = eval("".join(self.real_result))
             if int(res) == res:
@@ -118,6 +134,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
             self.result_label.setText("error, don't do that")
 
         self.is_equal = True
+        self.brackets_stack = []
 
     def get_percent(self):
 
@@ -145,9 +162,17 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.result_label.setText("".join(self.real_result))
 
         self.is_equal = False
+        self.brackets_stack = []
 
     def brackets(self):
-        pass
+        print(self.brackets_stack)
+        if self.real_result[-1] in self.math_sighns:
+            self.real_result += ["("]
+            self.brackets_stack += ["("]
+        elif self.brackets_stack.count("(") > self.brackets_stack.count(")"):
+            self.real_result += [")"]
+            self.brackets_stack += [")"]
+        self.result_label.setText("".join(self.real_result))
 
     def comma(self):
         print(self.real_result)
