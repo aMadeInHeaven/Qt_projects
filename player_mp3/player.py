@@ -1,26 +1,48 @@
 from PyQt6 import QtWidgets, QtGui
-from pygame import mixer
+from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 import sys
-from player_mp3.design.playerUi import Ui_MainWindow
+from PyQt6.QtCore import QUrl
+from design.playerUi import Ui_MainWindow
 
 
 class player(Ui_MainWindow, QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        mixer.init()
+        self.music_player = QMediaPlayer()
         self.setupUi(self)
-        self.setup_btns()
+        self.setup()
         self.list_of_music_names = []
-        self.audioFormats = "*.mp3 *.wav *.ogg *.wma *.flac"
+        self.audioFormats = "*.mp3 *.wav"
         self.pause = False
+        self.position = 0
 
-    def setup_btns(self):
-        #self.SongProgress_sldr.connect(self.count_music_duration)
+        self.audio_output = QAudioOutput()
+        self.music_player.setAudioOutput(self.audio_output)
+        self.audio_output.setVolume(50)
+
+    def setup(self):
         self.play_btn.clicked.connect(self.play)
         self.next_btn.clicked.connect(self.next)
         self.prev_btn.clicked.connect(self.previous)
         self.music_list.doubleClicked.connect(self.change_song)
         self.add_song.clicked.connect(self.open)
+
+        self.SongProgress_sldr.sliderMoved.connect(self.set_position)
+
+        self.music_player.positionChanged.connect(self.position_changed)
+        self.music_player.durationChanged.connect(self.duration_changed)
+        #self.music_player.stateChanged.connect(self.state_changed)
+
+    def set_position(self, position):
+        self.music_player.setPosition(position)
+        print(self.music_player.position())
+
+    def position_changed(self, position):
+        print(position)
+        self.SongProgress_sldr.setValue(position)
+
+    def duration_changed(self, duration):
+        self.SongProgress_sldr.setRange(0, duration)
 
     def open(self):
         # file_name = QFileDialog.getOpenFileName(self)[0]
@@ -48,27 +70,32 @@ class player(Ui_MainWindow, QtWidgets.QMainWindow):
         pass
 
     def play(self):
-        if mixer.music.get_busy():
-            self.play_btn.setIcon(QtGui.QIcon("design/images/pause.png"))
-            mixer.music.pause()
+        # print(f'self.music_player.isPlaying() {self.music_player.isPlaying()}')
+        # print(f'self,pause {self.pause}')
+        if self.music_player.isPlaying():
             self.pause = True
+            self.music_player.pause()
+            self.play_btn.setIcon(QtGui.QIcon("design/images/pause.png"))
+
         else:
             if self.pause:
                 self.play_btn.setIcon(QtGui.QIcon("design/images/play.png"))
-                mixer.music.unpause()
                 self.pause = False
-            else:
-                if self.music_list.count() > 0:
-                    self.play_btn.setIcon(QtGui.QIcon("design/images/play.png"))
-                    music = self.music_list.takeItem(0).text()
-                    print(music)
-                    self.SongName_lbl.setText(music[:music.find(".")])
-                    mixer.music.load(self.list_of_music_names[0])
-                    mixer.music.play()
-                    self.list_of_music_names.pop(0)
+                self.music_player.play()
 
-    def count_music_duration(self):
-        pass
+            elif self.music_list.count() > 0:
+                self.play_btn.setIcon(QtGui.QIcon("design/images/play.png"))
+                music = self.music_list.takeItem(0).text()
+                print(self.list_of_music_names[0])
+
+                self.SongName_lbl.setText(music[:music.find(".")])
+
+                self.music_player.setPosition(self.position)
+
+                self.music_player.setSource(QUrl.fromLocalFile(self.list_of_music_names[0]))
+
+                self.music_player.play()
+                self.list_of_music_names.pop(0)
 
 
 if __name__ == "__main__":
