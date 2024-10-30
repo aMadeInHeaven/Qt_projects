@@ -12,9 +12,11 @@ class player(Ui_MainWindow, QtWidgets.QMainWindow):
         self.setupUi(self)
         self.setup()
         self.list_of_music_names = []
+        self.music_index = 0
         self.audioFormats = "*.mp3 *.wav"
         self.pause = False
         self.position = 0
+        self.duration = 0
 
         self.audio_output = QAudioOutput()
         self.music_player.setAudioOutput(self.audio_output)
@@ -31,17 +33,36 @@ class player(Ui_MainWindow, QtWidgets.QMainWindow):
 
         self.music_player.positionChanged.connect(self.position_changed)
         self.music_player.durationChanged.connect(self.duration_changed)
-        #self.music_player.stateChanged.connect(self.state_changed)
+        self.music_player.playingChanged.connect(self.next_song_after_finish)
+
+    def next_song_after_finish(self):
+        if self.pause != True and self.SongProgress_sldr.value() == self.duration:
+            if self.music_list.count()!=0:
+                self.play_btn.setIcon(QtGui.QIcon("design/images/play.png"))
+                music = self.music_list.takeItem(0).text()
+                print(self.list_of_music_names[0])
+
+                self.SongName_lbl.setText(music[:music.find(".")])
+
+                self.music_player.setPosition(self.position)
+
+                self.music_player.setSource(QUrl.fromLocalFile(self.list_of_music_names[self.music_index]))
+                self.music_index += 1
+                self.music_player.play()
+            else:
+                self.pause = True
+                self.play_btn.setIcon(QtGui.QIcon("design/images/pause.png"))
 
     def set_position(self, position):
         self.music_player.setPosition(position)
-        print(self.music_player.position())
+        #print(self.music_player.position())
 
     def position_changed(self, position):
-        print(position)
+        #print(position)
         self.SongProgress_sldr.setValue(position)
 
     def duration_changed(self, duration):
+        self.duration = duration
         self.SongProgress_sldr.setRange(0, duration)
 
     def open(self):
@@ -61,7 +82,20 @@ class player(Ui_MainWindow, QtWidgets.QMainWindow):
             print("some shit happened")
 
     def next(self):
-        pass
+        if self.music_list.count()>0:
+            self.play_btn.setIcon(QtGui.QIcon("design/images/play.png"))
+            music = self.music_list.takeItem(0).text()
+            print(self.list_of_music_names[0])
+
+            self.SongName_lbl.setText(music[:music.find(".")])
+
+            self.music_player.setPosition(self.position)
+
+            self.music_player.setSource(QUrl.fromLocalFile(self.list_of_music_names[self.music_index]))
+            self.music_index += 1
+            self.music_player.play()
+            self.pause = False
+
 
     def change_song(self):
         pass
@@ -70,7 +104,7 @@ class player(Ui_MainWindow, QtWidgets.QMainWindow):
         pass
 
     def play(self):
-        # print(f'self.music_player.isPlaying() {self.music_player.isPlaying()}')
+
         # print(f'self,pause {self.pause}')
         if self.music_player.isPlaying():
             self.pause = True
@@ -92,10 +126,9 @@ class player(Ui_MainWindow, QtWidgets.QMainWindow):
 
                 self.music_player.setPosition(self.position)
 
-                self.music_player.setSource(QUrl.fromLocalFile(self.list_of_music_names[0]))
-
+                self.music_player.setSource(QUrl.fromLocalFile(self.list_of_music_names[self.music_index]))
+                self.music_index += 1
                 self.music_player.play()
-                self.list_of_music_names.pop(0)
 
 
 if __name__ == "__main__":
