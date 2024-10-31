@@ -11,12 +11,12 @@ class player(Ui_MainWindow, QtWidgets.QMainWindow):
         self.music_player = QMediaPlayer()
         self.setupUi(self)
         self.setup()
-        self.list_of_music_names = []
-        self.music_index = 0
-        self.audioFormats = "*.mp3 *.wav"
+        self.list_of_music_names = []  # список с путями к файлам с музыкой
+        self.music_index = 0  # индекс песни из списка с путями к песням
+        self.audioFormats = "*.mp3 *.wav"  # поддерживаемые форматы
         self.pause = False
-        self.position = 0
-        self.duration = 0
+        self.position = 0  # параметр для перемотки композиции до указанного момента времени
+        self.duration = 0  # длительность песни
 
         self.audio_output = QAudioOutput()
         self.music_player.setAudioOutput(self.audio_output)
@@ -29,15 +29,15 @@ class player(Ui_MainWindow, QtWidgets.QMainWindow):
         self.music_list.doubleClicked.connect(self.change_song)
         self.add_song.clicked.connect(self.open)
 
-        self.SongProgress_sldr.sliderMoved.connect(self.set_position)
+        self.SongProgress_sldr.sliderMoved.connect(self.set_position)  # Двигая слайдер меняем место проигрывания музыки
 
-        self.music_player.positionChanged.connect(self.position_changed)
-        self.music_player.durationChanged.connect(self.duration_changed)
+        self.music_player.positionChanged.connect(self.position_changed)  # Двигает слайдер по мере того, как проигрывается музыка
+        self.music_player.durationChanged.connect(self.duration_changed)  # Изменяет предел значения слайдера
         self.music_player.playingChanged.connect(self.next_song_after_finish)
 
     def next_song_after_finish(self):
         if self.pause != True and self.SongProgress_sldr.value() == self.duration:
-            if self.music_list.count()!=0:
+            if self.music_list.count() != 0:
                 self.play_btn.setIcon(QtGui.QIcon("design/images/play.png"))
                 music = self.music_list.takeItem(0).text()
                 print(self.list_of_music_names[0])
@@ -74,15 +74,15 @@ class player(Ui_MainWindow, QtWidgets.QMainWindow):
 
         try:
             for file in files:
-                self.list_of_music_names += [file]
-                self.music_list.addItem(file.split("/")[-1])
+                self.list_of_music_names += [file]  # Добавляем путь к файлу в плейлист
+                self.music_list.addItem(file.split("/")[-1])  # Добавляем название пести в плейлист, который видет пользователь
                 print(file)
 
         except:
             print("some shit happened")
 
     def next(self):
-        if self.music_list.count()>0:
+        if self.music_list.count() > 0:
             self.play_btn.setIcon(QtGui.QIcon("design/images/play.png"))
             music = self.music_list.takeItem(0).text()
             print(self.list_of_music_names[0])
@@ -95,7 +95,6 @@ class player(Ui_MainWindow, QtWidgets.QMainWindow):
             self.music_index += 1
             self.music_player.play()
             self.pause = False
-
 
     def change_song(self):
         pass
