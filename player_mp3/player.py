@@ -31,12 +31,14 @@ class player(Ui_MainWindow, QtWidgets.QMainWindow):
 
         self.SongProgress_sldr.sliderMoved.connect(self.set_position)  # Двигая слайдер меняем место проигрывания музыки
 
-        self.music_player.positionChanged.connect(self.position_changed)  # Двигает слайдер по мере того, как проигрывается музыка
+        self.music_player.positionChanged.connect(
+            self.position_changed)  # Двигает слайдер по мере того, как проигрывается музыка
         self.music_player.durationChanged.connect(self.duration_changed)  # Изменяет предел значения слайдера
         self.music_player.playingChanged.connect(self.next_song_after_finish)
 
     def next_song_after_finish(self):
         if self.pause != True and self.SongProgress_sldr.value() == self.duration:
+            print(self.duration)
             if self.music_list.count() != 0:
                 self.play_btn.setIcon(QtGui.QIcon("design/images/play.png"))
                 music = self.music_list.takeItem(0).text()
@@ -45,13 +47,14 @@ class player(Ui_MainWindow, QtWidgets.QMainWindow):
                 self.SongName_lbl.setText(music[:music.find(".")])
 
                 self.music_player.setPosition(self.position)
-
-                self.music_player.setSource(QUrl.fromLocalFile(self.list_of_music_names[self.music_index]))
                 self.music_index += 1
+                self.music_player.setSource(QUrl.fromLocalFile(self.list_of_music_names[self.music_index]))
+
                 self.music_player.play()
             else:
                 self.pause = True
                 self.play_btn.setIcon(QtGui.QIcon("design/images/pause.png"))
+        print(f'next_song index {self.music_index}')
 
     def set_position(self, position):
         self.music_player.setPosition(position)
@@ -75,24 +78,28 @@ class player(Ui_MainWindow, QtWidgets.QMainWindow):
         try:
             for file in files:
                 self.list_of_music_names += [file]  # Добавляем путь к файлу в плейлист
-                self.music_list.addItem(file.split("/")[-1])  # Добавляем название пести в плейлист, который видет пользователь
+                self.music_list.addItem(
+                    file.split("/")[-1])  # Добавляем название пести в плейлист, который видет пользователь
                 print(file)
+            print(self.list_of_music_names)
 
         except:
             print("some shit happened")
 
     def next(self):
+
         if self.music_list.count() > 0:
             self.play_btn.setIcon(QtGui.QIcon("design/images/play.png"))
             music = self.music_list.takeItem(0).text()
-            print(self.list_of_music_names[0])
-
+            #print(self.list_of_music_names[0])
+            self.music_index += 1
             self.SongName_lbl.setText(music[:music.find(".")])
 
             self.music_player.setPosition(self.position)
 
             self.music_player.setSource(QUrl.fromLocalFile(self.list_of_music_names[self.music_index]))
-            self.music_index += 1
+            #print(self.list_of_music_names[self.music_index], self.music_index+1)
+
             self.music_player.play()
             self.pause = False
 
@@ -100,7 +107,21 @@ class player(Ui_MainWindow, QtWidgets.QMainWindow):
         pass
 
     def previous(self):
-        pass
+        if self.music_index > 0:
+            self.play_btn.setIcon(QtGui.QIcon("design/images/play.png"))
+            print(self.music_index, self.list_of_music_names)
+            self.music_index -= 1
+            music = self.list_of_music_names[self.music_index]
+            print(music.split("/")[-1][:music.find(".")])
+
+            self.SongName_lbl.setText(music.split("/")[-1][:music.find(".")])
+
+            self.music_player.setPosition(self.position)
+
+            self.music_player.setSource(QUrl.fromLocalFile(self.list_of_music_names[self.music_index]))
+            self.music_player.play()
+            self.pause = False
+            self.music_list.insertItem(0, self.list_of_music_names[self.music_index+1].split("/")[-1][:music.find(".")])
 
     def play(self):
 
@@ -126,7 +147,7 @@ class player(Ui_MainWindow, QtWidgets.QMainWindow):
                 self.music_player.setPosition(self.position)
 
                 self.music_player.setSource(QUrl.fromLocalFile(self.list_of_music_names[self.music_index]))
-                self.music_index += 1
+                #self.music_index += 1
                 self.music_player.play()
 
 
